@@ -1,11 +1,6 @@
 import React from "react";
 import classnames from "classnames";
 
-import net from 'net';
-import Web3 from 'web3';
-import web3 from 'web3';
-import Tx from 'ethereumjs-tx';
-
 // reactstrap components
 import {
   Button,
@@ -27,7 +22,6 @@ import {
   Col
 } from "reactstrap";
 
-// const web3 = new Web3('https://ropsten.infura.io/v3/aed47a6a98ac49a7a9e1243bd1b2f842', net);
 
 // const privateKey = new Buffer('5C90EA75F5241212D17D6A4C226CEB78C28A02C8652BA130256B087AF9C1779F', 'hex');
 
@@ -36,7 +30,7 @@ var color = {
   paddingLeft: '20px'
 };
 
-var contractAddress = "0x782889b0116EB60F95d6686f253F793be63F5F3f";
+var contractAddress = "0x7FF18776D21Ca8120D26A671FA88f38a1829b285";
 var contract;
 
 const abi = [
@@ -78,14 +72,15 @@ const abi = [
 	}
 ]
 
+let Web3;
 
-window.addEventListener('load', function() {
+window.addEventListener('load', function(e) {
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+  console.log("Events:", e);
   if (typeof web3 !== 'undefined') {
-      let web3js;
-      web3js = new Web3(web3.currentProvider);
-      contract = web3.eth.contract(abi).at(contractAddress);
-      console.log('WEB3JS: ',web3js)
+      Web3 = window.web3;
+      contract = Web3.eth.contract(abi).at(contractAddress);
+      console.log(contract);
 
   } else {
       console.log('No web3? You should consider trying MetaMask!')
@@ -98,25 +93,17 @@ class Signup extends React.Component {
     super(props);
     this.state = {
       firstName: '',
-      lastName: '',
-      address: '',
-      isStudent: '',
       age: '',
       transactionID: '',
       account: '',
     }
   }
   
-
-  _getValue = () => {
-    // var inputData = this.state.age;
-    // console.log(inputData)
-    alert("Your Centrelink has been approved. Gas cost: $0.49")
-  //   contract.setId.call.then(function(error, result){
-  //     if(!error){
-  //         console.log('this works!!!!');
-  //     }
-  // });
+  _sendData = () => {
+    contract.setId(this.state.firstName, this.state.age, (err, res) => {
+      console.log("Error:", err)
+      console.log("Response:", res)
+    })
   }
   
   
@@ -166,19 +153,6 @@ class Signup extends React.Component {
                       />
                     </InputGroup>
 
-                    <InputGroup
-                      className={classnames({
-                        "input-group-focus": this.state.emailFocus
-                      })}
-                    >
-                      <InputGroupAddon addonType="prepend">
-                      </InputGroupAddon>
-                      <Input
-                        placeholder="Last Name"
-                        type="text"
-                        onChange={(inputData) => this.setState({lastName: inputData.target.value})}
-                      />
-                    </InputGroup>
 
                     
                     <InputGroup
@@ -191,7 +165,7 @@ class Signup extends React.Component {
                       <Input
                         placeholder="Age"
                         type="text"
-                        onChange={(inputData) => this.setState({age: inputData.target.value})}
+                        onChange={(inputData) => this.setState({age: parseInt(inputData.target.value)})}
                       />
                     </InputGroup>
 
@@ -212,18 +186,16 @@ class Signup extends React.Component {
 
                     </InputGroup>
                     <Button 
-                      onClick={this._getValue} 
+                      onClick={this._sendData} 
                       className="btn-round"
                       color="primary" 
                       size="lg" >
                     Submit Application
                     </Button>
                   </Form>
-{/*                   
+                   
                   <h4 style={{color: 'white'}}>{'First Name: ' + this.state.firstName}</h4>
-                  <h4 style={{color: 'white'}}>{'Last Name: ' + this.state.lastName}</h4>
                   <h4 style={{color: 'white'}}>{'Age: ' + this.state.age}</h4>
-                  <h4 style={{color: 'white'}}>{'Current Student: ' + this.state.address}</h4>                   */}
                 </CardBody>
 
               </Card>
